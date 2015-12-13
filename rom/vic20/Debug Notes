@@ -1,0 +1,61 @@
+
+# These should be ok
+ 24:  30719 CLC            
+ 32:  36069 JSR $%04X      
+ 96:  36067 RTS            
+106:   5372 ROR            
+120:      1 SEI            
+132:      1 STY $%02X      
+133:      3 STA $%02X      
+134:      1 STX $%02X      
+138:  36067 TXA            
+141:      1 STA $%04X      
+144:  36066 BCC $%04X      
+145:  77506 STA ($%02X), Y 
+149:    256 STA $%02X, X   
+157:    512 STA $%04X, X   
+154:      1 TXS            
+160:      1 LDY #$%02X     
+162:      3 LDX #$%02X     
+165:  36066 LDA $%02X      
+168:      1 TAY            
+169:  41417 LDA #$%02X     
+170:  36068 TAX            
+177:  36067 LDA ($%02X), Y 
+189:      1 LDA $%04X, X   
+208:  77764 BNE $%04X      
+209:  41439 CMP ($%02X), Y 
+216:      1 CLD            
+221:      1 CMP $%04X, X   
+230:  36207 INC $%02X      
+232:    256 INX            
+240:  36066 BEQ $%04X      
+
+
+# Code starts here
+LAB_FD22
+	LDX	#$FF			; set X for stack
+	SEI				; disable interrupts
+	TXS				; clear stack
+	CLD				; clear decimal mode
+	JSR	LAB_FD3F		; scan for autostart ROM at $A000
+	BNE	LAB_FD2F		; if not there continue Vic startup
+
+	JMP	(LAB_A000)		; call ROM start code
+
+LAB_FD2F
+# Never returns from call to FD8D
+	JSR	LAB_FD8D		; initialise and test RAM
+	JSR	LAB_FD52		; restore default I/O vectors
+	JSR	LAB_FDF9		; initialize I/O registers
+	JSR	LAB_E518		; initialise hardware
+	CLI				; enable interrupts
+	JMP	(LAB_C000)		; execute BASIC
+
+	
+	
+Operation:  A /\ M, M7 -> N, M6 -> V
+
+ Bit 6 and 7 are transferred to the status register.   N Z C I D V
+ If the result of A /\ M is zero then Z = 1, otherwise M7/ _ _ _ M6
+ Z = 0
