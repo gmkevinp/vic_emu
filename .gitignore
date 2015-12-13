@@ -30,3 +30,10 @@
 
 # Debug files
 *.dSYM/
+/Debug/
+/Release/
+
+# Project debug files
+trace
+
+
