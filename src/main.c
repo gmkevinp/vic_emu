@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 #include "cpu6502.h"
 #include "rom.h"
 
@@ -75,15 +75,11 @@ int main(int argc, char** argv)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	mem_init(&mem);
-	rom_load(&mem, 0x8000, 0x1000, "rom/vic20/chargen");
-	rom_load(&mem, 0xC000, 0x2000, "rom/vic20/basic");
-	rom_load(&mem, 0xE000, 0x2000, "rom/vic20/kernal");
+	rom_init(&mem);
 	cpu6502_init(&cpu6502, &mem);
-	cpu->ofp = fopen("trace", "w");
-	cpu6502.trace = 1;
 
 	gettimeofday(&last,NULL);
-	while (1) {
+	while (!cpu6502.halt) {
 		struct timeval elapsed;
 		gettimeofday(&now,NULL);
 		if (timeval_subtract(&elapsed, &now, &last)) {

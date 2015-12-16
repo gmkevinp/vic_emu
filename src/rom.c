@@ -14,7 +14,7 @@
 static void rom_init_unexpanded(mem_st *mem)
 {
 	/* 3K Expansion RAM */
-	rom_region(mem, 0x0400, 0x0800);
+	rom_region(mem, 0x0400, 0x0C00);
 
 	/* 8K Expansion RAM/ROM */
 	rom_region(mem, 0x2000, 0x2000);

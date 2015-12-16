@@ -14,7 +14,6 @@ static uint8_t asl_val(uint8_t val)
 
 	flags |= (val & 0x80) ? ST_CARRY: 0;
 	val <<= 1;
-	val |= ((status_is_set(&cpu->status, ST_CARRY)? 1: 0));
 	flags = (!val) ? ST_ZERO: 0;
 	flags |= (val & 0x80) ? ST_NEG: 0;
 
@@ -37,12 +36,14 @@ static uint8_t lsr_val(uint8_t val)
 static uint8_t rol_val(uint8_t val)
 {
 	status_reg_t  flags;
-	uint8_t       carry;
+	uint8_t       new_carry;
+	uint8_t       old_carry;
 
-	carry = val & 0x80;
-	flags = (carry) ? ST_CARRY: 0;
+	old_carry = status_is_set(&cpu->status, ST_CARRY)? 1: 0;
+	new_carry = val & 0x80;
 	val <<= 1;
-	val |= carry >> 7;
+	val |= old_carry;
+	flags = (new_carry) ? ST_CARRY: 0;
 	flags |= (!val) ? ST_ZERO: 0;
 	flags |= (val & 0x80) ? ST_NEG: 0;
 
@@ -53,12 +54,14 @@ static uint8_t rol_val(uint8_t val)
 static uint8_t ror_val(uint8_t val)
 {
 	status_reg_t  flags;
-	uint8_t       carry;
+	uint8_t       old_carry;
+	uint8_t       new_carry;
 
-	carry = val & 0x01;
-	flags = (carry) ? ST_CARRY: 0;
+	old_carry = status_is_set(&cpu->status, ST_CARRY)? 1: 0;
+	new_carry = val & 0x01;
 	val >>= 1;
-	val |= carry << 7;
+	val |= old_carry << 7;
+	flags = (new_carry) ? ST_CARRY: 0;
 	flags |= (!val) ? ST_ZERO: 0;
 	flags |= (val & 0x80) ? ST_NEG: 0;
 

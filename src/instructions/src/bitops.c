@@ -70,7 +70,7 @@ static void ora_mem(uint16_t addr)
 	uint8_t  val;
 
 	val = mem_read8(cpu->mem, addr);
-	eor_val(val);
+	ora_val(val);
 }
 
 void and_immediate(void)

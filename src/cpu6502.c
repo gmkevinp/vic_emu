@@ -12,18 +12,27 @@
 
 cpu6502_st *cpu;
 
+static uint16_t vic_scrn_2_ascii(uint8_t c) {
+	if (c < 27) {
+		return ('@' + c);
+	} else {
+		return c;
+	}
+}
+
 static void cpu6502_dump_screen(void)
 {
-	uint16_t   addr;
+	uint16_t   screen;
 	uint8_t    row;
 	uint8_t    col;
 
-	addr = 7680;
-	for (row = 0; row <= 23; row++) {
-		for (col = 0; col <= 22; col++) {
+	screen = cpu->mem->ram[0x288] << 8;
+	printf ("Screen Memory: 0x%04X\n", screen);
+	for (row = 0; row < 23; row++) {
+		for (col = 0; col < 22; col++) {
 			uint8_t  byte;
-			byte = cpu->mem->ram[addr++];
-			printf ("%02X", byte);
+			byte = cpu->mem->ram[screen++];
+			printf ("%c", vic_scrn_2_ascii(byte));
 		}
 		printf ("\n");
 	}
@@ -33,6 +42,7 @@ static void cpu6502_where(cpu6502_st *cpu)
 {
 	switch (cpu->pc) {
 	case 0xFD22:
+//		cpu->trace = 1;
 		printf ("Start up\n");
 		break;
 	case 0xFD52:
@@ -49,6 +59,7 @@ static void cpu6502_where(cpu6502_st *cpu)
 		break;
 	case 0xFDAD:
 		printf ("RAM Test starting...\n");
+		cpu->trace = 1;
 		break;
 	case 0xE518:
 		printf ("Initialize Hardware\n");
@@ -59,6 +70,29 @@ static void cpu6502_where(cpu6502_st *cpu)
 	case 0xE64F:
 		printf ("Write char and Wait for key\n");
 		cpu6502_dump_screen();
+		cpu6502_halt("Finished startup\n");
+		break;
+	case 0xE404:
+		printf ("Print startup message\n");
+		printf ("0x37: 0x%02X - End of memory low byte\n", cpu->mem->ram[0x37]);
+		printf ("0x38: 0x%02X - End of memory high byte\n", cpu->mem->ram[0x38]);
+		printf ("0x2B: 0x%02X - Start of memory low byte\n", cpu->mem->ram[0x2B]);
+		printf ("0x2C: 0x%02X - Start of memory high byte\n", cpu->mem->ram[0x2C]);
+		break;
+	case 0xDDDF:
+		printf ("Print FAC1\n");
+		printf ("0x61: 0x%02X\n", cpu->mem->ram[0x61]);
+		printf ("0x62: 0x%02X\n", cpu->mem->ram[0x62]);
+		printf ("0x63: 0x%02X\n", cpu->mem->ram[0x63]);
+		printf ("0x64: 0x%02X\n", cpu->mem->ram[0x64]);
+		printf ("0x65: 0x%02X\n", cpu->mem->ram[0x65]);
+		printf ("0x66: 0x%02X\n", cpu->mem->ram[0x66]);
+		cpu->mem->ram[0x61] = 0x82;
+		cpu->mem->ram[0x62] = 0x40;
+		cpu->mem->ram[0x63] = 0x00;
+		cpu->mem->ram[0x64] = 0x00;
+		cpu->mem->ram[0x65] = 0x00;
+		cpu->mem->ram[0x66] = 0x00;
 		break;
 	default:
 		break;
@@ -90,9 +124,9 @@ static void cpu6502_trace(inst_db_entry_st *op_data)
 			fprintf (cpu->ofp, "%-15s", tmp);
 			break;
 	}
-	fprintf (cpu->ofp, "\tSR:%02X AC:%02X X:%02X Y:%02X SP:%02X C1:%02X C2:%02X ($C1):%02X\n",
+	fprintf (cpu->ofp, "\tSR:%02X AC:%02X X:%02X Y:%02X SP:%02X D1:%02X D2:%02X ($D1):%04X\n",
 			cpu->status, cpu->ac, cpu->x, cpu->y, cpu->sp,
-			cpu->mem->ram[0xC1], cpu->mem->ram[0xC2], cpu->mem->ram[mem_read16(cpu->mem, 0xC1)]);
+			cpu->mem->ram[0xD1], cpu->mem->ram[0xD2], cpu->mem->ram[mem_read16(cpu->mem, 0xD1)]);
 }
 
 static void cpu6502_do_inst(inst_db_entry_st *op_data)
@@ -138,6 +172,8 @@ void cpu6502_init(cpu6502_st *cpu_in, mem_st *mem)
 	cpu_in->mem = mem;
 	inst_init(&cpu->inst);
 	pc_reg_init(&cpu->pc, cpu->mem);
+
+	cpu->ofp = fopen("trace", "w");
 }
 
 void cpu6502_dump(cpu6502_st *cpu)
