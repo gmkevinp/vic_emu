@@ -39,8 +39,14 @@ void rom_init(mem_st *mem)
 
 void rom_region(mem_st *mem, uint16_t dst, uint16_t len) {
 	uint32_t   addr;
+	uint32_t   end;
 
-	for (addr = dst; addr < (dst + len); addr++) {
+	end = (uint32_t) dst + (uint32_t) len;
+	if ((end-1) > 0xFFFF) {
+		printf ("%s: Out of range: dst: 0x%04X; len: 0x%04X\n", __FUNCTION__, dst, len);
+		exit(-1);
+	}
+	for (addr = dst; addr < end; addr++) {
 		mem->mem_read[addr] = rom_read8;
 		mem->mem_write[addr] = rom_write;
 	}
@@ -48,45 +54,24 @@ void rom_region(mem_st *mem, uint16_t dst, uint16_t len) {
 
 uint8_t  rom_read8(mem_st *mem, uint16_t addr)
 {
-	return mem->ram[addr];
+	uint8_t  val;
+
+	val = mem->ram[addr];
+	mem->last_rd_addr = addr;
+	mem->last_rd_val = val;
+	return val;
 }
 
 void rom_write(mem_st *mem, uint16_t addr, uint8_t val)
 {
-//	printf ("Writing ROM: [0x%04X] <- 0x%02X\n", addr, val);
 }
 
 void rom_load(mem_st *mem, uint16_t dst, uint16_t len, char *fname)
 {
-	uint8_t     *data;
-	size_t       obj_read;
-	FILE        *fp;
-
-	fp = fopen(fname, "r");
-	if (!fp) {
-		perror("Failed to open rom file");
-		exit(-1);
-	}
-
-	data = malloc(len);
-	if (!data) {
-		perror("Failed to allocate memory for rom data");
-		exit(-1);
-	}
-
-	obj_read = fread(data, len, 1, fp);
-	if (obj_read != 1) {
-		perror("Failed to read rom data");
-		exit(-1);
-	}
-
-	memcpy(&mem->ram[dst], data, len);
+	mem_load_file(mem, dst, len, fname);
 	rom_region(mem, dst, len);
-
-	fclose(fp);
-	free(data);
-
 	printf("ROM: 0x%04X - 0x%04X %s loaded\n", dst, dst + len - 1, fname);
+
 	return;
 }
 

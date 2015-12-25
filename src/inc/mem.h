@@ -20,13 +20,20 @@ typedef struct mem_st_ {
 	uint8_t     ram[MEM_SZ];
 	mem_read_f  mem_read[MEM_SZ];
 	mem_write_f mem_write[MEM_SZ];
+	uint16_t    last_rd_addr;
+	uint8_t     last_rd_val;
+	uint16_t    last_wr_addr;
+	uint8_t     last_wr_val;
 } mem_st;
 
 void mem_init(mem_st *mem);
 void mem_dump(mem_st *mem);
 uint8_t  mem_read8(mem_st *mem, uint16_t addr);
 uint16_t mem_read16(mem_st *mem, uint16_t addr);
+uint8_t mem_bd_read8(mem_st *mem, uint16_t addr);
+uint16_t mem_bd_read16(mem_st *mem, uint16_t addr);
 void mem_write(mem_st *mem, uint16_t addr, uint8_t val);
-void mem_load(mem_st *mem, uint16_t dst, uint8_t *src, uint16_t len);
+void mem_load(mem_st *mem, uint16_t dst, uint16_t len, uint8_t *src);
+void mem_load_file(mem_st *mem, uint16_t dst, uint16_t len, char *fname);
 
 #endif /* MEM_H_ */

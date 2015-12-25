@@ -91,7 +91,6 @@ void lda_indirect_y(void)
 
 	addr = get_indirect_y_addr();
 	cpu->ac = load_mem(addr);
-//	printf ("LDA(*),Y: AC <- [0x%04X]: 0x%02X\n", addr, cpu->ac);
 }
 
 void ldx_immediate(void)

@@ -12,8 +12,8 @@ void pc_reg_init(pc_reg_t *pc, mem_st *mem)
 {
 	uint16_t  addr;
 
-	addr = mem_read8(mem, 0xFFFD) << 8 |
-		   mem_read8(mem, 0xFFFC);
+	addr = mem_bd_read8(mem, 0xFFFD) << 8 |
+		   mem_bd_read8(mem, 0xFFFC);
 
 	*pc = addr;
 }

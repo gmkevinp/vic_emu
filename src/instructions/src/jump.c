@@ -34,7 +34,7 @@ void jsr(void)
 	jmp_addr = get_absolute_addr(0);
 
 	/* Save return address to stack */
-	ret_addr = (cpu->pc+3);
+	ret_addr = (cpu->pc+2);
 	addr_hi = (ret_addr & 0xFF00) >> 8;
 	addr_lo = (ret_addr & 0x00FF);
 	stack_push(addr_hi);
@@ -69,5 +69,5 @@ void rts(void)
 	addr_hi = stack_pop();
 	addr = (addr_hi << 8) | addr_lo;
 
-	pc_reg_set(&cpu->pc, addr);
+	pc_reg_set(&cpu->pc, addr + 1);
 }

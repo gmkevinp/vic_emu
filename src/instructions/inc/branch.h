@@ -17,5 +17,7 @@ void bpl(void);
 void bvc(void);
 void bvs(void);
 
+bool is_branch_op(uint8_t op);
+uint16_t calc_branch_addr(uint16_t pc, uint8_t addr);
 
 #endif /* BRANCH_H_ */

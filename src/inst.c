@@ -19,7 +19,7 @@ void unsupported_opcode(void)
 {
 	uint8_t  opcode;
 
-	opcode = mem_read8(cpu->mem, cpu->pc);
+	opcode = mem_bd_read8(cpu->mem, cpu->pc);
 	printf ("[0x%04X]: 0x%02X - WARNING: Unknown opcode\n", cpu->pc, opcode);
 	cpu6502_halt("Unsupport opcode");
 }
@@ -39,14 +39,14 @@ void inst_init(inst_st *inst)
 
 uint8_t get_immediate(void)
 {
-	return mem_read8(cpu->mem, cpu->pc + 1);
+	return mem_bd_read8(cpu->mem, cpu->pc + 1);
 }
 
 uint16_t get_zero_page_addr(uint8_t offset)
 {
 	uint8_t      addr;
 
-	addr = mem_read8(cpu->mem, cpu->pc + 1);
+	addr = mem_bd_read8(cpu->mem, cpu->pc + 1);
 	return addr + offset;
 }
 
@@ -54,8 +54,8 @@ uint16_t get_indirect_addr(void)
 {
 	uint16_t     addr;
 
-	addr = mem_read16(cpu->mem, cpu->pc + 1);
-	addr = mem_read16(cpu->mem, addr);
+	addr = mem_bd_read16(cpu->mem, cpu->pc + 1);
+	addr = mem_bd_read16(cpu->mem, addr);
 	return  addr;
 }
 
@@ -63,7 +63,7 @@ uint16_t get_absolute_addr(uint8_t offset)
 {
 	uint16_t     addr;
 
-	addr = mem_read16(cpu->mem, cpu->pc + 1);
+	addr = mem_bd_read16(cpu->mem, cpu->pc + 1);
 	return  addr + offset;
 }
 
@@ -73,9 +73,9 @@ uint16_t get_indirect_x_addr(void)
 	uint8_t       addr_hi;
 	uint8_t       addr_lo;
 
-	addr = mem_read8(cpu->mem, cpu->pc + 1);
-	addr_lo = mem_read8(cpu->mem, addr + cpu->x);
-	addr_hi = mem_read8(cpu->mem, addr + cpu->x+ 1);
+	addr = mem_bd_read8(cpu->mem, cpu->pc + 1);
+	addr_lo = mem_bd_read8(cpu->mem, addr + cpu->x);
+	addr_hi = mem_bd_read8(cpu->mem, addr + cpu->x+ 1);
 	addr = (addr_hi << 8) | addr_lo;
 	return addr;
 }
@@ -84,7 +84,7 @@ uint16_t get_indirect_y_addr(void)
 {
 	uint16_t      addr;
 
-	addr = mem_read8(cpu->mem, cpu->pc + 1);
-	addr = mem_read16(cpu->mem, addr) + cpu->y;
+	addr = mem_bd_read8(cpu->mem, cpu->pc + 1);
+	addr = mem_bd_read16(cpu->mem, addr) + cpu->y;
 	return addr;
 }

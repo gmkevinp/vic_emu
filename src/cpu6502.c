@@ -9,6 +9,7 @@
 #include <string.h>
 #include "cpu6502.h"
 #include "inst_db.h"
+#include "branch.h"
 
 cpu6502_st *cpu;
 
@@ -40,6 +41,8 @@ static void cpu6502_dump_screen(void)
 
 static void cpu6502_where(cpu6502_st *cpu)
 {
+//	static bool started = FALSE;
+
 	switch (cpu->pc) {
 	case 0xFD22:
 //		cpu->trace = 1;
@@ -70,14 +73,16 @@ static void cpu6502_where(cpu6502_st *cpu)
 	case 0xE64F:
 		printf ("Write char and Wait for key\n");
 		cpu6502_dump_screen();
-		cpu6502_halt("Finished startup\n");
+
+//		if (!started) {
+//			cpu->pc = 0x400; // Run 6502 Functional test
+//			started = TRUE;
+//		} else {
+//			cpu6502_halt("Finished startup\n");
+//		}
 		break;
 	case 0xE404:
 		printf ("Print startup message\n");
-		printf ("0x37: 0x%02X - End of memory low byte\n", cpu->mem->ram[0x37]);
-		printf ("0x38: 0x%02X - End of memory high byte\n", cpu->mem->ram[0x38]);
-		printf ("0x2B: 0x%02X - Start of memory low byte\n", cpu->mem->ram[0x2B]);
-		printf ("0x2C: 0x%02X - Start of memory high byte\n", cpu->mem->ram[0x2C]);
 		break;
 	case 0xDDDF:
 		printf ("Print FAC1\n");
@@ -87,12 +92,12 @@ static void cpu6502_where(cpu6502_st *cpu)
 		printf ("0x64: 0x%02X\n", cpu->mem->ram[0x64]);
 		printf ("0x65: 0x%02X\n", cpu->mem->ram[0x65]);
 		printf ("0x66: 0x%02X\n", cpu->mem->ram[0x66]);
-		cpu->mem->ram[0x61] = 0x82;
-		cpu->mem->ram[0x62] = 0x40;
-		cpu->mem->ram[0x63] = 0x00;
-		cpu->mem->ram[0x64] = 0x00;
-		cpu->mem->ram[0x65] = 0x00;
-		cpu->mem->ram[0x66] = 0x00;
+//		cpu->mem->ram[0x61] = 0x82;
+//		cpu->mem->ram[0x62] = 0x40;
+//		cpu->mem->ram[0x63] = 0x00;
+//		cpu->mem->ram[0x64] = 0x00;
+//		cpu->mem->ram[0x65] = 0x00;
+//		cpu->mem->ram[0x66] = 0x00;
 		break;
 	default:
 		break;
@@ -103,30 +108,40 @@ static void cpu6502_trace(inst_db_entry_st *op_data)
 {
 	uint16_t          arg16;
 	uint8_t           arg8;
+	uint8_t          *pc;
 	char              tmp[20];
 
-	fprintf (cpu->ofp, "0x%08X - 0x%04X: ", cpu->n_inst, cpu->pc);
+	pc = &cpu->mem->ram[cpu->pc];
+	fprintf (cpu->ofp, "0x%04X: ", cpu->pc);
 
 	switch (op_data->sz) {
 		case 1:
-			fprintf (cpu->ofp, "%-15s", op_data->format);
+			fprintf (cpu->ofp, "%02X       %-15s", *pc, op_data->format);
 			break;
 
 		case 2:
-			arg8 = mem_read8(cpu->mem, cpu->pc + 1);
-			sprintf (tmp, op_data->format, arg8);
-			fprintf (cpu->ofp, "%-15s", tmp);
+			arg8 = mem_bd_read8(cpu->mem, cpu->pc + 1);
+			if (is_branch_op(op_data->opcode)) {
+				arg16 = calc_branch_addr(cpu->pc, arg8);
+				sprintf (tmp, op_data->format, arg16);
+			} else {
+				sprintf (tmp, op_data->format, arg8);
+			}
+			fprintf (cpu->ofp, "%02X %02X    %-15s", *pc, *(pc+1), tmp);
 			break;
 
 		case 3:
-			arg16 = mem_read16(cpu->mem, cpu->pc + 1);
+			arg16 = mem_bd_read16(cpu->mem, cpu->pc + 1);
 			sprintf (tmp, op_data->format, arg16);
-			fprintf (cpu->ofp, "%-15s", tmp);
+			fprintf (cpu->ofp, "%02X %02X %02X %-15s", *pc, *(pc+1), *(pc+2), tmp);
 			break;
 	}
-	fprintf (cpu->ofp, "\tSR:%02X AC:%02X X:%02X Y:%02X SP:%02X D1:%02X D2:%02X ($D1):%04X\n",
-			cpu->status, cpu->ac, cpu->x, cpu->y, cpu->sp,
-			cpu->mem->ram[0xD1], cpu->mem->ram[0xD2], cpu->mem->ram[mem_read16(cpu->mem, 0xD1)]);
+	fprintf (cpu->ofp, "\tSR:%02X AC:%02X X:%02X Y:%02X SP:%02X",
+			cpu->status, cpu->ac, cpu->x, cpu->y, cpu->sp);
+	fprintf (cpu->ofp, "\tRD: 0x%04X: 0x%02X; WR: 0x%04X: 0x%02X\n",
+			cpu->mem->last_rd_addr, cpu->mem->last_rd_val,
+			cpu->mem->last_wr_addr, cpu->mem->last_wr_val);
+
 }
 
 static void cpu6502_do_inst(inst_db_entry_st *op_data)
@@ -141,7 +156,8 @@ static void cpu6502_do_inst(inst_db_entry_st *op_data)
 		pc_reg_inc(&cpu->pc, op_data->sz);
 	}
 	cpu->n_inst++;
-	if (cpu->n_inst == 1250000) {
+//	if (cpu->n_inst == 1250000) {
+	if (cpu->n_inst == 1500000) {
 		cpu6502_halt("Hit Instruction Limit");
 	}
 }
@@ -150,7 +166,7 @@ static inst_db_entry_st *cpu6502_fetch(void)
 {
 	uint8_t opcode;
 
-	opcode = mem_read8(cpu->mem, cpu->pc);
+	opcode = mem_bd_read8(cpu->mem, cpu->pc);
 	return &cpu->inst.inst_data[opcode];
 }
 

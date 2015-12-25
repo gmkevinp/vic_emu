@@ -4,8 +4,8 @@
  *  Created on: Aug 23, 2015
  *      Author: kevin
  */
-#ifndef RAM_H_
-#define RAM_H_
+#ifndef ROM_H_
+#define ROM_H_
 #include <stdint.h>
 #include "mem.h"
 

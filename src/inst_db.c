@@ -65,7 +65,7 @@ inst_db_entry_st inst_db[] = {
 		{ .opcode = 0x2C, .n_cycles = 4, .sz = 3, .pc_adv = false, .format = "BIT $%04X",       .func = bit_absolute, },
 
 		/* BRK - Done */
-		{ .opcode = 0x00, .n_cycles = 7, .sz = 1, .pc_adv = true,  .format = "BRK",             .func = brk, },
+		{ .opcode = 0x00, .n_cycles = 7, .sz = 1, .pc_adv = false, .format = "BRK",             .func = brk, },
 
 		/* Clear Status - Done */
 		{ .opcode = 0x18, .n_cycles = 2, .sz = 1, .pc_adv = true,  .format = "CLC",             .func = clc, },

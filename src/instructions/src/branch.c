@@ -8,13 +8,24 @@
 #include "cpu6502.h"
 #include "branch.h"
 
-void do_branch(addr)
+bool is_branch_op(uint8_t op)
+{
+	/* NOTE: branch opcode follow the pattern <odd><0> */
+	return ((op & 0x1F) == 0x10);
+}
+
+uint16_t calc_branch_addr(uint16_t pc, uint8_t addr)
 {
 	if (addr & 0x80) {
-		cpu->pc += (0xFF00 | addr);
+		return cpu->pc + 2 + (0xFF00 | addr);
 	} else {
-		cpu->pc += addr;
+		return cpu->pc + 2 + addr;
 	}
+}
+
+void do_branch(addr)
+{
+	cpu->pc = calc_branch_addr(cpu->pc, addr);
 }
 
 void branch_if(uint8_t field, bool is_set)
@@ -22,9 +33,10 @@ void branch_if(uint8_t field, bool is_set)
 	uint8_t  addr;
 
 	addr = get_immediate();
-	cpu->pc += 2;
 	if (is_set == status_is_set(&cpu->status, field)) {
 		do_branch(addr);
+	} else {
+		cpu->pc += 2;
 	}
 }
 
