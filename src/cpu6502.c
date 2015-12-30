@@ -10,6 +10,7 @@
 #include "cpu6502.h"
 #include "inst_db.h"
 #include "branch.h"
+#include "vic.h"
 
 cpu6502_st *cpu;
 
@@ -219,6 +220,7 @@ void cpu6502_run(cpu6502_st *cpu)
 	cpu->ofp = fopen("trace", "w");
 	while (!cpu->halt) {
 		cpu6502_clk();
+		vic_clk();
 	}
 }
 

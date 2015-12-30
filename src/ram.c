@@ -8,8 +8,9 @@
 #include <stdlib.h>
 #include "cpu6502.h"
 #include "ram.h"
+#include "mem.h"
 
-uint8_t  ram_read8(mem_st *mem, uint16_t addr)
+static uint8_t  ram_read8(mem_st *mem, uint16_t addr)
 {
 	uint8_t  val;
 
@@ -19,27 +20,17 @@ uint8_t  ram_read8(mem_st *mem, uint16_t addr)
 	return val;
 }
 
-void ram_write(mem_st *mem, uint16_t addr, uint8_t val)
+static void ram_write(mem_st *mem, uint16_t addr, uint8_t val)
 {
 	mem->ram[addr] = val;
 	mem->last_wr_addr = addr;
 	mem->last_wr_val = val;
 }
 
-void ram_region(mem_st *mem, uint16_t dst, uint16_t len) {
-	uint32_t   addr;
-	uint32_t   end;
-
-	end = (uint32_t) dst + (uint32_t) len;
-	if (end > 0xFFFF) {
-		printf ("%s: Out of range: dst: 0x%04X; len: 0x%04X\n", __FUNCTION__, dst, len);
-		exit(-1);
-	}
-	printf ("RAM: 0x%04X - 0x%04X\n", dst, dst + len);
-	for (addr = dst; addr <= end; addr++) {
-		mem->mem_read[addr] = ram_read8;
-		mem->mem_write[addr] = ram_write;
-	}
+void ram_region(mem_st *mem, uint16_t dst, uint16_t len)
+{
+	mem_region(mem, dst, len, ram_read8, ram_write);
+	printf ("RAM: 0x%04X - 0x%04X\n", dst, dst + len - 1);
 }
 
 void ram_load(mem_st *mem, uint16_t dst, uint16_t len, char *fname)

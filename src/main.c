@@ -10,25 +10,47 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <GL/glut.h>
 #include "cpu6502.h"
 #include "rom.h"
+#include "vic.h"
 
 #define CYCLE_TIME_US   1
+#define WIN_WIDTH       800
+#define WIN_HEIGHT      640
+#define X_SCALE         4
+#define Y_SCALE         3
 
 static cpu6502_st cpu6502;
 static mem_st     mem;
-
-static void RenderSceneCB()
-{
-    glClear(GL_COLOR_BUFFER_BIT);
-    glutSwapBuffers();
-}
+static uint8_t   *pixels;
+static uint16_t   width, height;
 
 void do_clock_cycle(void)
 {
 	cpu6502_clk();
+	vic_clk();
+}
+
+#ifdef SKIP
+static void timer(int val)
+{
+	uint16_t  i;
+	for (i = 0; i < 1000; i++) {
+		do_clock_cycle();
+	}
+    glutTimerFunc(1, timer, 0);
+}
+#endif
+static void RenderSceneCB()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    vic_get_rgbu8_screen(width, height, pixels);
+    glPixelZoom(X_SCALE, Y_SCALE);
+    glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    glutSwapBuffers();
 }
 
 static void InitializeGlutCallbacks()
@@ -62,11 +84,22 @@ timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y)
 
 int main(int argc, char** argv)
 {
+	static uint16_t render = 60;
 	struct timeval now, last;
+	mem_init(&mem);
+	rom_init(&mem);
+	vic_init(&mem);
+	cpu6502_init(&cpu6502, &mem);
+	vic_get_screen_sz(&width, &height);
 
+	pixels = malloc(width * height * 3);
+	if (!pixels) {
+		printf ("Failed to allocated screen buffer\n");
+		exit(-1);
+	}
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA);
-    glutInitWindowSize(1024, 768);
+    glutInitWindowSize(width * X_SCALE, height * Y_SCALE);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("VIC-20");
 
@@ -74,10 +107,7 @@ int main(int argc, char** argv)
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	mem_init(&mem);
-	rom_init(&mem);
-	cpu6502_init(&cpu6502, &mem);
-
+#ifndef SKIP
 	gettimeofday(&last,NULL);
 	while (!cpu6502.halt) {
 		struct timeval elapsed;
@@ -90,9 +120,16 @@ int main(int argc, char** argv)
 		if (elapsed.tv_sec || elapsed.tv_usec >= CYCLE_TIME_US) {
 			do_clock_cycle();
 			last = now;
+			if (--render == 0) {
+				RenderSceneCB();
+				render = 60000;
+			}
 		}
 		glutMainLoopEvent();
 	}
-
+#else
+    glutTimerFunc(1, timer, 0);
+	glutMainLoop();
+#endif
     return 0;
 }

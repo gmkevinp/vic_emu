@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "mem.h"
 
-typedef vic_st_ {
+typedef struct vic_st_ {
 	uint8_t   origin_h;
 	uint8_t   origin_v;
 	uint8_t   n_cols;
@@ -32,11 +32,18 @@ typedef vic_st_ {
 
 #define VIC_INTERLACE_MASK  0x80
 #define VIC_ORIGIN_H_MASK   0x7F
-#define
-void     vic_init(mem_st *mem);
-void     vic_region(mem_st *mem, uint16_t dst, uint16_t len);
-uint8_t  vic_read8(mem_st *mem, uint16_t addr);
-void     vic_write(mem_st *mem, uint16_t addr, uint8_t val);
 
+typedef struct rgbu8_st_ {
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
+} rgbu8_st;
+
+
+void     vic_init(mem_st *mem);
+void     vic_get_screen_sz(uint16_t *width, uint16_t *height);
+void     vic_region(mem_st *mem, uint16_t dst, uint16_t len);
+void     vic_clk(void);
+void     vic_get_rgbu8_screen(uint16_t width, uint16_t height, uint8_t *pixels);
 
 #endif /* INC_VIC_H_ */

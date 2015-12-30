@@ -15,7 +15,8 @@
 void mem_init(mem_st *mem)
 {
 	memset(mem, 0, sizeof(*mem));
-	ram_region(mem, 0x0000, 0xFFFF);
+	ram_region(mem, 0x0000, 0x8000);
+	ram_region(mem, 0x8000, 0x8000);
 }
 
 void mem_dump(mem_st *mem)
@@ -75,6 +76,23 @@ void mem_load(mem_st *mem, uint16_t dst, uint16_t len, uint8_t *src)
 
 	for (i=0; i<len; i++) {
 		mem_write(mem, dst+i, src[i]);
+	}
+}
+
+void mem_region(mem_st *mem, uint16_t dst, uint16_t len,
+				mem_read_f read8, mem_write_f write8)
+{
+	uint32_t   addr;
+	uint32_t   end;
+
+	end = (uint32_t) dst + (uint32_t) len;
+	if ((end-1) > 0xFFFF) {
+		printf ("%s: Out of range: dst: 0x%04X; len: 0x%04X\n", __FUNCTION__, dst, len);
+		exit(-1);
+	}
+	for (addr = dst; addr <= end; addr++) {
+		mem->mem_read[addr] = read8;
+		mem->mem_write[addr] = write8;
 	}
 }
 
