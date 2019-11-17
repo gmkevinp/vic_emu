@@ -12,6 +12,13 @@
 #include "ram.h"
 #include "rom.h"
 
+void mem_init_functional_test(mem_st *mem)
+{
+	memset(mem, 0, sizeof(*mem));
+	ram_region(mem, 0x0000, 0x10000);
+	ram_load(mem, 0x0000, 0x10000, "rom/vic20/6502_functional_test.bin");
+}
+
 void mem_init(mem_st *mem)
 {
 	memset(mem, 0, sizeof(*mem));
@@ -70,16 +77,16 @@ void mem_write(mem_st *mem, uint16_t addr, uint8_t val)
 	mem->mem_write[addr](mem, addr, val);
 }
 
-void mem_load(mem_st *mem, uint16_t dst, uint16_t len, uint8_t *src)
+void mem_load(mem_st *mem, uint16_t dst, uint32_t len, uint8_t *src)
 {
-	int i;
+	uint32_t i;
 
 	for (i=0; i<len; i++) {
 		mem_write(mem, dst+i, src[i]);
 	}
 }
 
-void mem_region(mem_st *mem, uint16_t dst, uint16_t len,
+void mem_region(mem_st *mem, uint16_t dst, uint32_t len,
 				mem_read_f read8, mem_write_f write8)
 {
 	uint32_t   addr;
@@ -90,13 +97,13 @@ void mem_region(mem_st *mem, uint16_t dst, uint16_t len,
 		printf ("%s: Out of range: dst: 0x%04X; len: 0x%04X\n", __FUNCTION__, dst, len);
 		exit(-1);
 	}
-	for (addr = dst; addr <= end; addr++) {
+	for (addr = dst; addr < end; addr++) {
 		mem->mem_read[addr] = read8;
 		mem->mem_write[addr] = write8;
 	}
 }
 
-void mem_load_file(mem_st *mem, uint16_t dst, uint16_t len, char *fname)
+void mem_load_file(mem_st *mem, uint16_t dst, uint32_t len, char *fname)
 {
 	uint8_t     *data;
 	size_t       obj_read;
@@ -108,7 +115,7 @@ void mem_load_file(mem_st *mem, uint16_t dst, uint16_t len, char *fname)
 		exit(-1);
 	}
 
-	data = malloc(len);
+	data = malloc(len+1);
 	if (!data) {
 		perror("Failed to allocate memory for data");
 		exit(-1);

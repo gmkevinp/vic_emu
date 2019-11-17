@@ -14,7 +14,7 @@ static uint8_t asl_val(uint8_t val)
 
 	flags |= (val & 0x80) ? ST_CARRY: 0;
 	val <<= 1;
-	flags = (!val) ? ST_ZERO: 0;
+	flags |= (!val) ? ST_ZERO: 0;
 	flags |= (val & 0x80) ? ST_NEG: 0;
 
 	status_reg_mask_and_set(&cpu->status, ST_ZERO | ST_NEG | ST_CARRY, flags);

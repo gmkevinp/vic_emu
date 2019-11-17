@@ -16,7 +16,7 @@ static void set_status(uint8_t val)
 	status_reg_mask_and_set(&cpu->status, ST_ZERO | ST_NEG, flags);
 }
 
-static void dec_mem(uint8_t addr)
+static void dec_mem(uint16_t addr)
 {
 	uint8_t  val;
 
@@ -26,7 +26,7 @@ static void dec_mem(uint8_t addr)
 	set_status(val);
 }
 
-static void inc_mem(uint8_t addr)
+static void inc_mem(uint16_t addr)
 {
 	uint8_t  val;
 

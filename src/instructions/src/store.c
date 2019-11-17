@@ -63,7 +63,6 @@ void sta_indirect_y(void)
 	uint16_t  addr;
 
 	addr = get_indirect_y_addr();
-//	printf ("STA(*),Y: [0x%04X] <- AC: 0x%02X\n", addr, cpu->ac);
 	mem_write(cpu->mem, addr, cpu->ac);
 }
 

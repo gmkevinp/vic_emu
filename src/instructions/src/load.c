@@ -153,7 +153,7 @@ void ldy_zero_page_x(void)
 {
 	uint16_t      addr;
 
-	addr = get_zero_page_addr(cpu->y);
+	addr = get_zero_page_addr(cpu->x);
 	cpu->y = load_mem(addr);
 }
 
@@ -169,7 +169,7 @@ void ldy_absolute_x(void)
 {
 	uint16_t      addr;
 
-	addr = get_absolute_addr(cpu->y);
+	addr = get_absolute_addr(cpu->x);
 	cpu->y = load_mem(addr);
 }
 

@@ -27,17 +27,16 @@ static void ram_write(mem_st *mem, uint16_t addr, uint8_t val)
 	mem->last_wr_val = val;
 }
 
-void ram_region(mem_st *mem, uint16_t dst, uint16_t len)
+void ram_region(mem_st *mem, uint16_t dst, uint32_t len)
 {
 	mem_region(mem, dst, len, ram_read8, ram_write);
-	printf ("RAM: 0x%04X - 0x%04X\n", dst, dst + len - 1);
+	printf ("RAM Region: 0x%04X - 0x%04X\n", dst, dst + len);
 }
 
-void ram_load(mem_st *mem, uint16_t dst, uint16_t len, char *fname)
+void ram_load(mem_st *mem, uint16_t dst, uint32_t len, char *fname)
 {
+	printf("RAM Load  : 0x%04X - 0x%04X %s\n", dst, dst + len, fname);
 	mem_load_file(mem, dst, len, fname);
-	ram_region(mem, dst, len);
-	printf("RAM: 0x%04X - 0x%04X %s loaded\n", dst, dst + len - 1, fname);
 
 	return;
 }

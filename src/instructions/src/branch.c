@@ -5,6 +5,7 @@
  *      Author: kevin
  */
 
+#include <stdlib.h>
 #include "cpu6502.h"
 #include "branch.h"
 
@@ -26,6 +27,11 @@ uint16_t calc_branch_addr(uint16_t pc, uint8_t addr)
 void do_branch(addr)
 {
 	cpu->pc = calc_branch_addr(cpu->pc, addr);
+
+	if (addr == 0xFE) {
+		printf("Warning: Infinite loop at 0x%04X... exiting\n", cpu->pc);
+		exit(0);
+	}
 }
 
 void branch_if(uint8_t field, bool is_set)

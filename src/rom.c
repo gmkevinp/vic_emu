@@ -28,7 +28,7 @@ static void rom_write(mem_st *mem, uint16_t addr, uint8_t val)
 static void rom_region(mem_st *mem, uint16_t dst, uint16_t len, char *desc)
 {
 	mem_region(mem, dst, len, rom_read8, rom_write);
-	printf ("ROM: 0x%04X - 0x%04X %s\n", dst, dst + len - 1, desc);
+	printf ("ROM: 0x%04X - 0x%04X %s\n", dst, dst + len, desc);
 }
 
 static void rom_init_unexpanded(mem_st *mem)
@@ -49,11 +49,11 @@ static void rom_init_unexpanded(mem_st *mem)
 	rom_region(mem, 0xA000, 0x2000, "8K RAM");
 }
 
-void rom_load(mem_st *mem, uint16_t dst, uint16_t len, char *fname)
+void rom_load(mem_st *mem, uint16_t dst, uint32_t len, char *fname)
 {
 	mem_load_file(mem, dst, len, fname);
 	rom_region(mem, dst, len, fname);
-	printf("ROM: 0x%04X - 0x%04X %s loaded\n", dst, dst + len - 1, fname);
+	printf("ROM: 0x%04X - 0x%04X %s loaded\n", dst, dst + len, fname);
 
 	return;
 }
@@ -65,5 +65,9 @@ void rom_init(mem_st *mem)
 	rom_load(mem, 0xE000, 0x2000, "rom/vic20/kernal");
 
 	rom_init_unexpanded(mem);
+}
+
+void rom_init_functional_test(mem_st *mem)
+{
 }
 

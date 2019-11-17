@@ -62,7 +62,7 @@ inst_db_entry_st inst_db[] = {
 
 		/* BIT */
 		{ .opcode = 0x24, .n_cycles = 3, .sz = 2, .pc_adv = true,  .format = "BIT $%02X",       .func = bit_zero_page, },
-		{ .opcode = 0x2C, .n_cycles = 4, .sz = 3, .pc_adv = false, .format = "BIT $%04X",       .func = bit_absolute, },
+		{ .opcode = 0x2C, .n_cycles = 4, .sz = 3, .pc_adv = true,  .format = "BIT $%04X",       .func = bit_absolute, },
 
 		/* BRK - Done */
 		{ .opcode = 0x00, .n_cycles = 7, .sz = 1, .pc_adv = false, .format = "BRK",             .func = brk, },
@@ -189,7 +189,7 @@ inst_db_entry_st inst_db[] = {
 		{ .opcode = 0x7E, .n_cycles = 7, .sz = 3, .pc_adv = true,  .format = "ROR $%04X, X",    .func = ror_absolute_x, },
 
 		/* RTI/RTS - Done */
-		{ .opcode = 0x4D, .n_cycles = 6, .sz = 1, .pc_adv = false, .format = "RTI",             .func = rti, },
+		{ .opcode = 0x40, .n_cycles = 6, .sz = 1, .pc_adv = false, .format = "RTI",             .func = rti, },
 		{ .opcode = 0x60, .n_cycles = 6, .sz = 1, .pc_adv = false, .format = "RTS",             .func = rts, },
 
 		/* SBC - Done */

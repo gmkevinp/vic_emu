@@ -10,40 +10,69 @@
 #include "cpu6502.h"
 #include "math.h"
 
+static void adc_dec_val(uint8_t val)
+{
+	status_reg_t  flags = 0;
+	uint8_t       res_lo;
+	uint8_t       res_hi;
+
+	printf("ADC: ac: 0x%02X; val: 0x%02X; SR: 0x%02X\n", cpu->ac, val, cpu->status);
+	res_lo = (cpu->ac & 0x0F) + (val & 0x0F);
+	printf("lo: 0x%02X = ac: 0x%02X; val: 0x%02X; SR: 0x%02X\n",
+			res_lo, cpu->ac & 0xf, val & 0x0f, cpu->status);
+	if (status_is_set(&cpu->status, ST_CARRY)) {
+		res_lo++;
+		printf("Add carry: res_lo: 0x%02X\n", res_lo);
+	}
+
+	res_hi = ((cpu->ac & 0xF0) >> 4) + ((val & 0xF0) >> 4);
+	printf("hi: 0x%02X = ac: 0x%02X; val: 0x%02X; SR: 0x%02X\n",
+			res_lo, cpu->ac & 0xf0, val & 0xf0, cpu->status);
+	if (res_lo > 9) {
+		printf("Carry from low(0x%02X) -> hi(0x%02X)\n", res_lo, res_hi);
+		res_lo -= 10;
+		res_hi++;
+	}
+
+	if (res_hi > 9) {
+		printf("Carry from hi(0x%02X) -> carry\n", res_hi);
+		res_hi -= 10;
+		flags = ST_CARRY;
+	}
+
+	status_reg_mask_and_set(&cpu->status, ST_ZERO | ST_NEG | ST_CARRY | ST_OVRFL, flags);
+	cpu->ac = (res_hi << 4) | res_lo;
+
+	printf("ADC Done: ac: 0x%02X; SR: 0x%02X\n", cpu->ac, cpu->status);
+
+}
+
 static void adc_val(uint8_t val)
 {
 	status_reg_t  flags;
+	uint16_t      result;
 
-	val += cpu->ac;
-	if (status_is_set(&cpu->status, ST_CARRY)) {
-		val++;
+	if (status_is_set(&cpu->status, ST_DEC)) {
+		adc_dec_val(val);
+		return;
 	}
 
-	flags = (val) ? 0: ST_ZERO;
-	flags |= (val & 0x80) ? ST_NEG: 0;
-	flags |= (val < cpu->ac) ? ST_CARRY: 0;
-	flags |= (((cpu->ac & 0x80) == 0) && (val & 0x80)) ? ST_OVRFL: 0;
-	status_reg_mask_and_set(&cpu->status, ST_ZERO | ST_NEG | ST_CARRY | ST_OVRFL, flags);
+	result = val + cpu->ac;
+	if (status_is_set(&cpu->status, ST_CARRY)) {
+		result++;
+	}
 
-	cpu->ac = val;
+	flags = (result & 0xFF) ? 0: ST_ZERO;
+	flags |= (result & 0x80) ? ST_NEG: 0;
+	flags |= (result > 0xFF) ? ST_CARRY: 0;
+	flags |= (~(cpu->ac ^ val) & (cpu->ac ^ result) & 0x80) ? ST_OVRFL: 0;
+	status_reg_mask_and_set(&cpu->status, ST_ZERO | ST_NEG | ST_CARRY | ST_OVRFL, flags);
+	cpu->ac = result;
 }
 
 static void sbc_val(uint8_t val)
 {
-	status_reg_t  flags;
-	int16_t       result;
-	uint8_t       not_carry;
-
-	not_carry = status_is_set(&cpu->status, ST_CARRY)? 0: 1;
-	result = cpu->ac - val - not_carry;
-
-	flags = (result) ? 0: ST_ZERO;
-	flags |= (result & 0x80) ? ST_NEG: 0;
-	flags |= (result >= 0) ? ST_CARRY: 0;
-	flags |= ((result > 127) || (result < -128)) ? ST_OVRFL: 0;
-	status_reg_mask_and_set(&cpu->status, ST_ZERO | ST_NEG | ST_CARRY | ST_OVRFL, flags);
-
-	cpu->ac = result & 0xFF;
+	adc_val(~val);
 }
 
 static void adc_mem(uint16_t addr)

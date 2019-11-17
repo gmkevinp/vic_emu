@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include "mem.h"
 
-void ram_load(mem_st *mem, uint16_t dst, uint16_t len, char *fname);
-void ram_region(mem_st *mem, uint16_t dst, uint16_t len);
+void ram_load(mem_st *mem, uint16_t dst, uint32_t len, char *fname);
+void ram_region(mem_st *mem, uint16_t dst, uint32_t len);
 
 #endif

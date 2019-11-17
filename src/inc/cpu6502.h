@@ -19,6 +19,11 @@ typedef uint8_t bool;
 #define TRUE  ((bool)(0==0))
 #define FALSE ((bool)(0==1))
 
+#define CPU6502_IRQ  1
+#define CPU6502_NMI  2
+#define CPU6502_RST  3
+#define CPU6502_BRK  4
+
 typedef struct cpu6502_st_ {
 	status_reg_t    status;
 	pc_reg_t        pc;
@@ -38,12 +43,14 @@ typedef struct cpu6502_st_ {
 } cpu6502_st;
 
 void cpu6502_init(cpu6502_st *cpu, mem_st *mem);
+void cpu6502_init_functional_test(cpu6502_st *cpu, mem_st *mem);
 void cpu6502_run(cpu6502_st *cpu);
 void cpu6502_halt(const char *str);
 void cpu6502_dump(cpu6502_st *cpu);
 uint8_t cpu6502_fetch_pc_and_inc(void);
 void cpu6502_step(void);
 void cpu6502_clk(void);
+void cpu6502_irq(uint8_t irq_type);
 void cpu6502_dump_inst_exec_count(cpu6502_st *cpu);
 
 extern cpu6502_st *cpu;

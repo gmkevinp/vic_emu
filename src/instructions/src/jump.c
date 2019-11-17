@@ -55,7 +55,7 @@ void rti(void)
 	addr_hi = stack_pop();
 	addr = (addr_hi << 8) | addr_lo;
 
-	pc_reg_set(&cpu->pc, addr+1);
+	pc_reg_set(&cpu->pc, addr);
 	cpu->status = status;
 }
 

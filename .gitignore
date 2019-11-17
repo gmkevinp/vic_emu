@@ -33,7 +33,29 @@
 /Debug/
 /Release/
 
+# Others
+.cproject
+.project
+.settings
+.DS_Store
+/.DS_Store
+
+
 # Project debug files
 trace
 
 
+
+.cproject
+
+.DS_Store
+
+*.launch
+
+.settings/language.settings.xml
+
+.project
+
+.DS_Store
+
+rom/.DS_Store

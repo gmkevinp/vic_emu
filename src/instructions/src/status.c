@@ -16,6 +16,7 @@ void clc(void)
 void cld(void)
 {
 	status_reg_clr(&cpu->status, ST_DEC);
+	printf("Clearing BCD mode\n");
 }
 
 void cli(void)
@@ -36,6 +37,7 @@ void sec(void)
 void sed(void)
 {
 	status_reg_set(&cpu->status, ST_DEC);
+	printf("Setting BCD mode\n");
 }
 
 void sei(void)

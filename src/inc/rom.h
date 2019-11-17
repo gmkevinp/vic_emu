@@ -10,6 +10,7 @@
 #include "mem.h"
 
 void rom_init(mem_st *mem);
-void rom_load(mem_st *mem, uint16_t dst, uint16_t len, char *fname);
+void rom_init_functional_test(mem_st *mem);
+void rom_load(mem_st *mem, uint16_t dst, uint32_t len, char *fname);
 
 #endif

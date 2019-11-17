@@ -47,7 +47,7 @@ uint16_t get_zero_page_addr(uint8_t offset)
 	uint8_t      addr;
 
 	addr = mem_bd_read8(cpu->mem, cpu->pc + 1);
-	return addr + offset;
+	return ((addr + offset) & 0xFF);
 }
 
 uint16_t get_indirect_addr(void)
@@ -74,8 +74,9 @@ uint16_t get_indirect_x_addr(void)
 	uint8_t       addr_lo;
 
 	addr = mem_bd_read8(cpu->mem, cpu->pc + 1);
-	addr_lo = mem_bd_read8(cpu->mem, addr + cpu->x);
-	addr_hi = mem_bd_read8(cpu->mem, addr + cpu->x+ 1);
+	addr = ((addr + cpu->x) & 0xFF);
+	addr_lo = mem_bd_read8(cpu->mem, addr);
+	addr_hi = mem_bd_read8(cpu->mem, addr + 1);
 	addr = (addr_hi << 8) | addr_lo;
 	return addr;
 }

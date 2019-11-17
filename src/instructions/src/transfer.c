@@ -12,7 +12,7 @@ static void set_status(uint8_t val)
 	uint8_t  flags;
 
 	flags = (val)? 0: ST_ZERO;
-	flags = (val & 0x80)? ST_NEG: 0;
+	flags |= (val & 0x80)? ST_NEG: 0;
 	status_reg_mask_and_set(&cpu->status,
 							ST_ZERO | ST_NEG,
 							flags);
@@ -45,7 +45,6 @@ void txa(void)
 void txs(void)
 {
 	cpu->sp = cpu->x;
-	set_status(cpu->sp);
 }
 
 void tya(void)
