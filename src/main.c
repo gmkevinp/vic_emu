@@ -25,7 +25,7 @@
 #define Y_SCALE         3
 
 /* Set to 1 to load 6502 functional test; 0 for VIC-20 */
-#define DO_FUNCTIONAL_TEST  1
+#define DO_FUNCTIONAL_TEST  0
 
 static cpu6502_st cpu6502;
 static mem_st     mem;
@@ -137,8 +137,8 @@ int main(int argc, char** argv)
 				last = now;
 				if (--render == 0) {
 					RenderSceneCB();
+                                        render = 600;
 				}
-				render = 60000;
 			}
 		} else {
 			do_clock_cycle();

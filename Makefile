@@ -6,8 +6,8 @@ obj = $(src:.c=.o)
 dep = $(obj:.o=.d)
 inc = -Isrc/inc -Isrc/instructions/inc
 
-CFLAGS = $(inc)
-LDFLAGS = -lGL -lglut -lpng -lz -lm
+CFLAGS = -g $(inc)
+LDFLAGS = -lGL -lglut
 
 $(prg): $(obj)
 	$(CC) -o $@ $^ $(LDFLAGS)
