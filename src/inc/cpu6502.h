@@ -25,21 +25,21 @@ typedef uint8_t bool;
 #define CPU6502_BRK  4
 
 typedef struct cpu6502_st_ {
-	status_reg_t    status;
-	pc_reg_t        pc;
-	mem_st         *mem;
-	inst_st         inst;
-	uint8_t         wait_cycles;
+    status_reg_t    status;
+    pc_reg_t        pc;
+    mem_st         *mem;
+    inst_st         inst;
+    uint8_t         wait_cycles;
 
-	uint8_t         ac;
-	uint8_t         x;
-	uint8_t         y;
-	uint8_t         sp;
+    uint8_t         ac;
+    uint8_t         x;
+    uint8_t         y;
+    uint8_t         sp;
 
-	uint8_t         halt;
-	uint8_t         trace;
-	uint32_t        n_inst;
-	FILE           *ofp;
+    uint8_t         halt;
+    uint8_t         trace;
+    uint32_t        n_inst;
+    FILE           *ofp;
 } cpu6502_st;
 
 void cpu6502_init(cpu6502_st *cpu, mem_st *mem);

@@ -13,13 +13,13 @@
 typedef void (*inst_run_f)(void);
 
 typedef struct inst_db_entry_st_ {
-	uint8_t      opcode;
-	uint8_t      sz;
-	uint8_t      n_cycles;
-	uint8_t      pc_adv;
-	char        *format;
-	inst_run_f   func;
-	uint32_t     exec_count;
+    uint8_t      opcode;
+    uint8_t      sz;
+    uint8_t      n_cycles;
+    uint8_t      pc_adv;
+    char        *format;
+    inst_run_f   func;
+    uint32_t     exec_count;
 } inst_db_entry_st;
 
 extern inst_db_entry_st inst_db[];

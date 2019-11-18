@@ -10,26 +10,26 @@
 
 void pc_reg_set(pc_reg_t *pc, uint16_t addr)
 {
-	*pc = addr;
+    *pc = addr;
 }
 
 void pc_reg_init(pc_reg_t *pc, mem_st *mem)
 {
-	uint16_t  addr;
+    uint16_t  addr;
 
-	addr = mem_bd_read8(mem, 0xFFFD) << 8 |
-		   mem_bd_read8(mem, 0xFFFC);
+    addr = mem_bd_read8(mem, 0xFFFD) << 8 |
+           mem_bd_read8(mem, 0xFFFC);
 
-	pc_reg_set(pc, addr);
+    pc_reg_set(pc, addr);
 }
 
 void pc_reg_dump(pc_reg_t *pc)
 {
-	printf("PC: 0x%04X\n", *pc);
+    printf("PC: 0x%04X\n", *pc);
 }
 
 void pc_reg_inc(pc_reg_t *pc, uint8_t bytes)
 {
-	*pc = *pc + bytes;
+    *pc = *pc + bytes;
 }
 

@@ -13,7 +13,7 @@
 #define N_OPCODES  256
 
 typedef struct inst_st_ {
-	inst_db_entry_st  inst_data[N_OPCODES];
+    inst_db_entry_st  inst_data[N_OPCODES];
 } inst_st;
 
 void inst_init(inst_st *inst);

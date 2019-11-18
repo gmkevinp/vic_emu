@@ -34,22 +34,22 @@ static uint16_t   width, height;
 
 void do_clock_cycle(void)
 {
-	static uint32_t irq_clk = 0;
+    static uint32_t irq_clk = 0;
 
-	cpu6502_clk();
-	vic_clk();
-	irq_clk++;
-	if (irq_clk >= 1000) {
-		irq_clk = 0;
+    cpu6502_clk();
+    vic_clk();
+    irq_clk++;
+    if (irq_clk >= 1000) {
+        irq_clk = 0;
 
-		/* Finish current instruction */
-//		while (cpu->wait_cycles) {
-//			cpu6502_clk();
-//		}
+        /* Finish current instruction */
+//        while (cpu->wait_cycles) {
+//            cpu6502_clk();
+//        }
 
-		/* Signal interrupt */
-		//cpu6502_irq(CPU6502_NMI);
-	}
+        /* Signal interrupt */
+        //cpu6502_irq(CPU6502_NMI);
+    }
 }
 
 static void RenderSceneCB()
@@ -92,26 +92,26 @@ timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y)
 
 int main(int argc, char** argv)
 {
-	static uint16_t render = 60;
-	struct timeval now, last;
-	if (DO_FUNCTIONAL_TEST) {
-		mem_init_functional_test(&mem);
-		rom_init_functional_test(&mem);
-		vic_init(&mem);
-		cpu6502_init_functional_test(&cpu6502, &mem);
-	} else {
-		mem_init(&mem);
-		rom_init(&mem);
-		vic_init(&mem);
-		cpu6502_init(&cpu6502, &mem);
-	}
-	vic_get_screen_sz(&width, &height);
+    static uint16_t render = 60;
+    struct timeval now, last;
+    if (DO_FUNCTIONAL_TEST) {
+        mem_init_functional_test(&mem);
+        rom_init_functional_test(&mem);
+        vic_init(&mem);
+        cpu6502_init_functional_test(&cpu6502, &mem);
+    } else {
+        mem_init(&mem);
+        rom_init(&mem);
+        vic_init(&mem);
+        cpu6502_init(&cpu6502, &mem);
+    }
+    vic_get_screen_sz(&width, &height);
 
-	pixels = malloc(width * height * 3);
-	if (!pixels) {
-		printf ("Failed to allocated screen buffer\n");
-		exit(-1);
-	}
+    pixels = malloc(width * height * 3);
+    if (!pixels) {
+        printf ("Failed to allocated screen buffer\n");
+        exit(-1);
+    }
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA);
     glutInitWindowSize(width * X_SCALE, height * Y_SCALE);
@@ -122,30 +122,30 @@ int main(int argc, char** argv)
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	gettimeofday(&last,NULL);
-	while (!cpu6502.halt) {
-		if (!DO_FUNCTIONAL_TEST) {
-			struct timeval elapsed;
-			gettimeofday(&now,NULL);
-			if (timeval_subtract(&elapsed, &now, &last)) {
-				printf ("Error: Negative elapsed time\n");
-				break;
-			}
+    gettimeofday(&last,NULL);
+    while (!cpu6502.halt) {
+        if (!DO_FUNCTIONAL_TEST) {
+            struct timeval elapsed;
+            gettimeofday(&now,NULL);
+            if (timeval_subtract(&elapsed, &now, &last)) {
+                printf ("Error: Negative elapsed time\n");
+                break;
+            }
 
-			if (elapsed.tv_sec || elapsed.tv_usec >= CYCLE_TIME_US) {
-				do_clock_cycle();
-				last = now;
-				if (--render == 0) {
-					RenderSceneCB();
-                                        render = 600;
-				}
-			}
-		} else {
-			do_clock_cycle();
-		}
+            if (elapsed.tv_sec || elapsed.tv_usec >= CYCLE_TIME_US) {
+                do_clock_cycle();
+                last = now;
+                if (--render == 0) {
+                    RenderSceneCB();
+                    render = 600;
+                }
+            }
+        } else {
+            do_clock_cycle();
+        }
 
-		glutMainLoopEvent();
-	}
+        glutMainLoopEvent();
+    }
 
     return 0;
 }

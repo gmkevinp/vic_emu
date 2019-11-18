@@ -16,57 +16,57 @@
 
 static void stack_dump()
 {
-	uint16_t  addr;
+    uint16_t  addr;
 
-	if (cpu->sp == 0xFF) {
-		return;
-	}
-	printf("Stack:\n");
-	for (addr = STACK_END; addr >= STACK_POS(cpu); addr--) {
-		printf("  0x%04X: 0x%02X\n", addr, mem_read8(cpu->mem, addr));
-	}
+    if (cpu->sp == 0xFF) {
+        return;
+    }
+    printf("Stack:\n");
+    for (addr = STACK_END; addr >= STACK_POS(cpu); addr--) {
+        printf("  0x%04X: 0x%02X\n", addr, mem_read8(cpu->mem, addr));
+    }
 }
 
 void stack_init(void)
 {
-	cpu->sp = 0xFF;
+    cpu->sp = 0xFF;
 }
 
 void stack_push(uint8_t val)
 {
 
-	if (STACK_DEBUG) {
-		printf ("Pre- Push(0x%02X): SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
-				val, cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
-	}
+    if (STACK_DEBUG) {
+        printf ("Pre- Push(0x%02X): SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
+                val, cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
+    }
 
-	mem_write(cpu->mem, STACK_POS(cpu), val);
-	cpu->sp--;
+    mem_write(cpu->mem, STACK_POS(cpu), val);
+    cpu->sp--;
 
-	if (STACK_DEBUG) {
-		printf ("Post-Push      : SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
-				cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
-		stack_dump();
-	}
+    if (STACK_DEBUG) {
+        printf ("Post-Push      : SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
+                cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
+        stack_dump();
+    }
 }
 
 uint8_t stack_pop(void)
 {
-	uint8_t  val;
+    uint8_t  val;
 
-	if (STACK_DEBUG) {
-		printf ("Pre -Pop       : SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
-				cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
-	}
+    if (STACK_DEBUG) {
+        printf ("Pre -Pop       : SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
+                cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
+    }
 
-	cpu->sp++;
-	val = mem_read8(cpu->mem, STACK_POS(cpu));
+    cpu->sp++;
+    val = mem_read8(cpu->mem, STACK_POS(cpu));
 
-	if (STACK_DEBUG) {
-		printf ("Post-Pop(0x%02X) : SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
-				val, cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
-		stack_dump();
-	}
+    if (STACK_DEBUG) {
+        printf ("Post-Pop(0x%02X) : SP: 0x%02X; PC: 0x%04X; 0x%04X: 0x%02X\n",
+                val, cpu->sp, cpu->pc, STACK_POS(cpu), STACK_TOS_VAL(cpu));
+        stack_dump();
+    }
 
-	return val;
+    return val;
 }

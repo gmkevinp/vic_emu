@@ -8,5 +8,5 @@
 
 void nop(void)
 {
-	return;
+    return;
 }

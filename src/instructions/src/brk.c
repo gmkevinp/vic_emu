@@ -10,6 +10,6 @@
 
 void brk(void)
 {
-	pc_reg_inc(&cpu->pc, 2);
-	cpu6502_irq(CPU6502_BRK);
+    pc_reg_inc(&cpu->pc, 2);
+    cpu6502_irq(CPU6502_BRK);
 }
